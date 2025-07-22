@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Dushyant Sharma",
+    "age": 21,
+    "isStudent": true,
+    "address": {
+      "city": "Sirsa",
+      "state": "Haryana"
+    }
+  },
+  {
+    "name": "Mayank Verma",
+    "age": 20,
+    "isStudent": false,
+    "address": {
+      "city": "Hisar",
+      "state": "Haryana"
+    }
+  }
+]
