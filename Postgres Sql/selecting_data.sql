@@ -69,3 +69,20 @@ SELECT * FROM student LIMIT 5;
 -- But in psql we need to write offset also , offset order is not matter
 SELECT * FROM student LIMIT 5 OFFSET 2;
 SELECT * FROM student OFFSET 2 LIMIT 5;
+
+
+-- Wildcard symbol for pattern matching 
+-- • % – Matches zero or more characters
+-- • _ – Matches exactly one character
+
+SELECT * FROM student WHERE date_of_birth::TEXT LIKE '____-__-05';     -- HINT :-   Like works in string
+
+-- Select name where name contains sh 
+SELECT * FROM student WHERE name LIKE '%ar%';
+
+
+-- Select 8-letter name starting with D
+SELECT * FROM student WHERE name LIKE 'D_______';
+
+-- Select Any date in the 2020s decade
+SELECT * FROM student WHERE date_of_birth::TEXT LIKE '202_-__-__';
