@@ -31,6 +31,10 @@ SELECT AGE('2025-06-01', '2025-05-01');
 
 -- EXTRACT() pulls out a specific part of a date, time, timestamp, or interval as a numeric value.
 
+-- Im mysql 
+-- SELECT ROUND(DATEDIFF(NOW(), hire_date)/365, 0) as years from employees;
+
+-- In psql
 SELECT 
     first_name,
     EXTRACT(YEAR FROM AGE(NOW(), hire_date)) AS years_worked
