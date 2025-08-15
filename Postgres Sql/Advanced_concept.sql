@@ -170,5 +170,168 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 
 
 -- Second Normal Form
+-- A table is said to be in second normal form only when it fulfill the following condition.
+-- 1. It has to be in first normal form 
+-- 2. Table should not contain partial dependency
+
+-- Partial Dependency means the proper subset of candidate key determine a non prime attribute.
+
+-- Non Prime attribute -> Attribute that form a candidate key in a table are called prime attribute.
+-- And the rest of the attribute of the relation are non prime 
+-- For a table prime attribute can be like employee_id and department_id
+-- And non prime attribute are like to be office location 
 
 
+-- To understand the second normal form let consider the example 
+
+-- | Employee\_ID | Department\_ID | Office\_Location |
+-- | ------------ | -------------- | ---------------- |
+-- | E1           | D1             | New York         |
+-- | E2           | D1             | New York         |
+-- | E3           | D2             | London           |
+
+-- Assumption
+
+-- Primary key = (Employee_ID, Department_ID) (composite key).
+-- Problem → Office_Location depends only on Department_ID (partial dependency).
+
+
+
+-- 2NF Conversion
+-- Employee_Department Table
+
+-- | Employee\_ID | Department\_ID |
+-- | ------------ | -------------- |
+-- | E1           | D1             |
+-- | E2           | D1             |
+-- | E3           | D2             |
+
+
+-- Split the dependecny into two
+
+-- Department Table
+
+-- | Department\_ID | Office\_Location |
+-- | -------------- | ---------------- |
+-- | D1             | New York         |
+-- | D2             | London           |
+
+
+-- Third Normal Form 
+-- Third Normal Form is a normal form that is used in normalizing the table to reduce the duplication of data and ensure referential intigrity
+-- Following condition has to be met by the table to be in third normal form
+-- 1. Table has to be in second normal form 
+-- 2. No non prime attribute is transitively dependent on any non prime attributes which depend on another non prime attributes.
+
+-- Let take Ex-
+-- If C is dependent on B and interm B is dependent on A and transitively C is dependent on A
+-- This should not happen in third normal form 
+-- All non prime attribute must depend on prime attribute 
+-- These are the two neccessary condition that needs to attain
+-- 3NF is design to eliminate undesirable data anormilies 
+-- To reduce a need for restructuring over time
+
+
+-- | Employee\_ID | Department\_ID |
+-- | ------------ | -------------- |
+-- | E1           | D1             |
+-- | E2           | D1             |
+-- | E3           | D2             |
+
+
+-- | Department\_ID | Office\_Location | Location\_Manager |
+-- | -------------- | ---------------- | ----------------- |
+-- | D1             | New York         | M1                |
+-- | D2             | London           | M2                |
+
+-- Location_Manager depends on Office_Location, which depends on Department_ID.
+-- This is a transitive dependency, so it violates 3NF.
+
+
+-- | Department\_ID | Office\_Location |
+-- | -------------- | ---------------- |
+-- | D1             | New York         |
+-- | D2             | London           |
+
+-- | Office\_Location | Location\_Manager |
+-- | ---------------- | ----------------- |
+-- | New York         | M1                |
+-- | London           | M2                |
+
+
+-- Boyce Codd Normal Form (BCNF or 3.5 Normal Form)
+-- Higher version of third normal form 
+-- Satisfied 3NF
+-- In this Every Funtion Dependency A->B , then A has to be the super key of that particular table 
+
+-- Super Key -> Group of single or multiple keys which identify the row in a table 
+-- Ex-
+
+
+-- CourseInstructor
+-- +------------+-----------+-----------+
+-- | course_id  | teacher   | room_no   |
+-- +------------+-----------+-----------+
+-- | C1         | T1        | R1        |
+-- | C2         | T2        | R2        |
+-- | C3         | T1        | R3        |
+-- +------------+-----------+-----------+
+
+
+-- Functional Dependencies (FDs)
+-- course_id → teacher (each course has only one teacher)
+-- teacher → room_no (each teacher teaches in exactly one room)
+
+
+-- Why it’s in 3NF but not BCNF
+-- Primary Key: course_id
+-- teacher → room_no violates BCNF because teacher is not a superkey, but it determines another attribute.
+
+
+-- Table 1: TeacherRoom
+-- +-----------+-----------+
+-- | teacher   | room_no   |
+-- +-----------+-----------+
+-- | T1        | R1        |
+-- | T2        | R2        |
+-- +-----------+-----------+
+
+
+-- Table 2: CourseTeacher
+
+-- +------------+-----------+
+-- | course_id  | teacher   |
+-- +------------+-----------+
+-- | C1         | T1        |
+-- | C2         | T2        |
+-- | C3         | T1        |
+-- +------------+-----------+
+
+
+-- In TeacherRoom, teacher is the key.
+-- In CourseTeacher, course_id is the key.
+-- All determinants are candidate keys → satisfies BCNF.
+
+
+
+
+-- Third Normal Form (3NF)
+-- A table is in 3NF if:
+
+-- It is in 2NF
+-- No non-prime attribute depends on another non-prime attribute (i.e., no transitive dependency).
+-- Exception: 3NF allows a functional dependency where the determinant is a candidate key or a superkey or a prime attribute.
+
+
+
+-- Boyce–Codd Normal Form (BCNF)
+-- A table is in BCNF if:
+
+-- It is in 3NF
+-- Every determinant must be a superkey (no exceptions).
+-- Stricter than 3NF — even candidate keys must follow the rule.
+
+-- Key Difference
+
+-- 3NF: Allows dependency where a non-superkey determinant is a prime attribute.
+-- BCNF: No such exception — if something determines other attributes, it must be a superkey.
