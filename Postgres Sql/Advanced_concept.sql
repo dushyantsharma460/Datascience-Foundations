@@ -146,6 +146,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 
 
 
+-- Conclustion
+-- 👉 1NF, 2NF, and 3NF all help reduce anomalies step by step, but the main NF that removes Insertion, Updation, and Deletion anomalies is 3NF (Third Normal Form).
+-- 1NF → Removes repetition & multi-valued attributes (but anomalies still exist).
+-- 2NF → Removes partial dependency (helps reduce anomalies but not fully).
+-- 3NF → Removes transitive dependency → this is what eliminates Insertion, Update, and Deletion anomalies effectively.
+
+
 
 -- First normal form (1NF)
 -- In first normal form we tackle the problem of atomisity 
@@ -174,15 +181,51 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 -- 1. It has to be in first normal form 
 -- 2. Table should not contain partial dependency
 
--- Partial Dependency means the proper subset of candidate key determine a non prime attribute.
 
--- Non Prime attribute -> Attribute that form a candidate key in a table are called prime attribute.
--- And the rest of the attribute of the relation are non prime 
+-- What is Partial Dependency?
+
+-- A partial dependency happens when a non-prime attribute (a column that is not part of any candidate key) depends only on part of a composite primary key, not on the whole key.
+
+-- A candidate key is a minimal set of one or more columns that can uniquely identify each row in a table.
+
+-- Candidate Key
+-- A Candidate Key is a minimal set of attributes (columns) that can uniquely identify a row in a table.
+-- Minimal → no extra column should be there.
+
+-- A table can have many candidate keys.
+-- From candidate keys, one is chosen as the Primary Key.
+
+-- Example 1: Student Table
+-- StudentID	Email				Phone			Name
+-- 1			a@gmail.com			98765			Rahul
+-- 2			b@gmail.com			91234			Sneha
+
+-- 👉 This problem comes only when the primary key is composite (made of 2 or more columns).
+
+
+-- Composite primary Key 
+
+-- A composite primary key is a primary key made up of two or more columns in a table.
+
+-- 👉 It is used when a single column cannot uniquely identify a row, but a combination of multiple columns can.
+
+-- Example
+-- CREATE TABLE Enrollments (
+--     student_id INT,
+--     course_id INT,
+--     enrollment_date DATE,
+--     PRIMARY KEY (student_id, course_id)
+-- );
+
+
+
+
 -- For a table prime attribute can be like employee_id and department_id
 -- And non prime attribute are like to be office location 
 
 
 -- To understand the second normal form let consider the example 
+-- Example 1:-
 
 -- | Employee\_ID | Department\_ID | Office\_Location |
 -- | ------------ | -------------- | ---------------- |
@@ -217,11 +260,75 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 -- | D2             | London           |
 
 
+
+-- Example 2:-
+
+-- Step 1: Start with a Table (Unnormalized or 1NF → 2NF issue)
+
+-- Suppose we have a table Student_Course:
+
+-- student_id	student_name	course_id	course_name		professor_id	professor_name
+-- 1			Raj				C101		DBMS			P01				Dr. Sharma
+-- 1			Raj				C102		Accounts		P02				Dr. Mehta
+-- 2			Priya			C101		DBMS			P01				Dr. Sharma
+-- 3			Aman			C103		Economics		P03				Dr. Verma
+
+-- Step 2: Primary Key
+
+-- Here, one student can take many courses → composite primary key = (student_id, course_id).
+
+-- Step 3: Check for Partial Dependency (2NF rule)
+
+-- 👉 2NF says: No non-key attribute should depend on part of a composite key.
+-- student_name depends only on student_id (part of the composite key). ❌
+-- course_name, professor_id, professor_name depend only on course_id. ❌
+-- So, the table is in 1NF but NOT in 2NF.
+
+-- Step 4: Break into 2NF
+-- We split the table into separate tables:
+
+-- Table 1: Students
+-- student_id	student_name
+-- 1			Raj
+-- 2			Priya
+-- 3			Aman
+
+-- Table 2: Courses
+-- course_id	course_name		professor_id
+-- C101			DBMS			P01
+-- C102			Accounts		P02
+-- C103			Economics		P03
+
+-- Table 3: Professors
+-- professor_id		professor_name
+-- P01				Dr. Sharma
+-- P02				Dr. Mehta
+-- P03				Dr. Verma
+
+-- Table 4: Student_Course (Mapping Table)
+-- student_id	course_id
+-- 1			C101
+-- 1			C102
+-- 2			C101
+-- 3			C103
+
+-- ✅ Now:
+
+-- No column depends on only part of a composite key.
+-- Data is stored without redundancy.
+-- Table is in 2NF.
+
+
+
 -- Third Normal Form 
 -- Third Normal Form is a normal form that is used in normalizing the table to reduce the duplication of data and ensure referential intigrity
 -- Following condition has to be met by the table to be in third normal form
 -- 1. Table has to be in second normal form 
 -- 2. No non prime attribute is transitively dependent on any non prime attributes which depend on another non prime attributes.
+
+-- Explaination
+-- No non-key attribute depends on another non-key attribute (no transitive dependency).
+-- 👉 In short: Every non-key column should depend only on the primary key, not on other non-key columns.
 
 -- Let take Ex-
 -- If C is dependent on B and interm B is dependent on A and transitively C is dependent on A
@@ -230,6 +337,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 -- These are the two neccessary condition that needs to attain
 -- 3NF is design to eliminate undesirable data anormilies 
 -- To reduce a need for restructuring over time
+
+-- Example 1:-
 
 
 -- | Employee\_ID | Department\_ID |
@@ -257,6 +366,109 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 -- | ---------------- | ----------------- |
 -- | New York         | M1                |
 -- | London           | M2                |
+
+
+-- Example 2:-
+
+-- 🔹 Step 1: Original Table (Unnormalized)
+-- order_id		customer_id		customer_name	customer_city	product_id	product_name	supplier_id		supplier_name
+-- 101			C01				Raj				Delhi			P01			Laptop			S01				Dell
+-- 102			C02				Priya			Mumbai			P02			Mobile			S02				Samsung
+-- 103			C01				Raj				Delhi			P02			Mobile			S02				Samsung
+-- 104			C03				Aman			Jaipur			P03			Printer			S01				Dell
+
+-- Composite Primary Key here = (order_id, product_id)
+-- (because one order can have many products).
+
+
+-- 🔹 Step 2: Convert to 2NF
+
+-- 👉 Rule of 2NF: Remove partial dependency (non-key column depends only on part of composite key).
+-- Partial Dependencies here:
+
+-- customer_name and customer_city depend only on customer_id.
+-- product_name, supplier_id, supplier_name depend only on product_id.
+
+-- So we split into separate tables:
+
+-- Customers Table
+-- customer_id		customer_name	customer_city
+-- C01				Raj				Delhi
+-- C02				Priya			Mumbai
+-- C03				Aman			Jaipur
+
+-- Products Table
+-- product_id		product_name	supplier_id		supplier_name
+-- P01				Laptop			S01				Dell
+-- P02				Mobile			S02				Samsung
+-- P03				Printer			S01				Dell
+
+-- Orders Table
+-- order_id		customer_id
+-- 101			C01
+-- 102			C02
+-- 103			C01
+-- 104			C03
+
+-- Order_Details Table
+-- order_id		product_id
+-- 101			P01
+-- 102			P02
+-- 103			P02
+-- 104			P03
+
+-- ✅ Now the design is in 2NF.
+
+
+-- 🔹 Step 3: Convert to 3NF
+
+-- 👉 Rule of 3NF: Remove transitive dependency (non-key depends on another non-key).
+
+-- Transitive Dependency:
+-- In the Products table:
+-- supplier_name depends on supplier_id,
+-- but supplier_id itself depends on product_id.
+-- So, supplier_name is indirectly dependent on product_id → ❌ violates 3NF.
+
+-- Final 3NF Tables
+
+-- Custome
+-- customer_id		customer_name	customer_city
+-- C01				Raj				Delhi
+-- C02				Priya			Mumbai
+-- C03				Aman			Jaipur
+
+-- Products
+-- product_id		product_name	supplier_id
+-- P01				Laptop			S01
+-- P02				Mobile			S02
+-- P03				Printer			S01
+
+-- Suppliers
+-- supplier_id		supplier_name
+-- S01				Dell
+-- S02				Samsung
+
+-- Orders
+-- order_id		customer_id
+-- 101			C01
+-- 102			C02
+-- 103			C01
+-- 104			C03
+
+-- Order_Details
+-- order_id		product_id
+-- 101			P01
+-- 102			P02
+-- 103			P02
+-- 104			P03
+
+-- ✅ Now the database is in 3NF:
+
+-- No partial dependency.
+-- No transitive dependency.
+-- Data redundancy removed.
+
 
 
 -- Boyce Codd Normal Form (BCNF or 3.5 Normal Form)
@@ -335,3 +547,226 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dushyantjoins;
 
 -- 3NF: Allows dependency where a non-superkey determinant is a prime attribute.
 -- BCNF: No such exception — if something determines other attributes, it must be a superkey.
+
+
+-- 🔹 Rule of BCNF
+
+-- A table is in BCNF if:
+-- It is already in 3NF.
+-- For every functional dependency (X → Y), the determinant X must be a superkey.
+
+-- A superkey is a set of one or more attributes (columns) in a table that can uniquely identify each row (tuple) in that table.
+
+-- 👉 In short: No non-superkey should determine another column.
+
+
+-- 🔹 Our 3NF Tables Recap
+
+-- Customers
+-- | customer_id | customer_name | customer_city |
+
+-- Products
+-- | product_id | product_name | supplier_id |
+
+-- Suppliers
+-- | supplier_id | supplier_name |
+
+-- Orders
+-- | order_id | customer_id |
+
+-- Order_Details
+-- | order_id | product_id |
+
+
+-- 🔹 Checking for BCNF
+
+-- Customers table
+-- customer_id → customer_name, customer_city ✅
+-- (customer_id is the primary key → superkey → OK)
+
+-- Orders table
+-- order_id → customer_id ✅
+-- (order_id is the primary key → OK)
+
+
+-- Order_Details table
+-- Composite key (order_id, product_id) is primary → no issues ✅
+
+-- Suppliers table
+-- supplier_id → supplier_name ✅
+-- (supplier_id is the key → OK)
+
+
+-- Products table
+-- product_id → product_name, supplier_id ✅ (product_id is primary key → OK)
+-- BUT ⚠️ Business rule: one supplier supplies exactly one product type → means supplier_id → product_id also holds.
+-- Here supplier_id is not a superkey (because primary key is product_id).
+
+
+-- 👉 This violates BCNF.
+
+-- 🔹 Converting Products Table into BCNF
+
+
+-- We split Products into two relations:
+
+-- Products
+-- product_id	product_name
+-- P01			Laptop
+-- P02			Mobile
+-- P03			Printer
+
+-- Product_Suppliers
+-- product_id	supplier_id
+-- P01			S01
+-- P02			S02
+-- P03			S01
+
+
+-- ✅ Final BCNF Design
+
+-- Customers(customer_id, customer_name, customer_city)
+-- Suppliers(supplier_id, supplier_name)
+-- Products(product_id, product_name)
+-- Product_Suppliers(product_id, supplier_id)
+-- Orders(order_id, customer_id)
+-- Order_Details(order_id, product_id)
+
+-- 👉 Now:
+-- All tables are free of partial dependency (2NF)
+-- All tables are free of transitive dependency (3NF)
+-- And every determinant is a superkey (BCNF) ✅
+
+
+
+--  Query optimization & execution plans
+-- 🔹 Step 1: What is an Execution Plan?
+
+-- PostgreSQL does not just run your SQL directly.
+-- It first creates a plan → decides how to fetch rows (scan whole table, use index, join strategy, etc.).
+
+-- We can see this plan using:
+
+-- EXPLAIN → shows the plan (estimated).
+-- EXPLAIN ANALYZE → shows the real execution (actual time + rows).
+
+
+--🔹 Step 2: Basic Example
+EXPLAIN SELECT * FROM marks WHERE subject = 'Math';
+
+
+-- 📌 Example output (without index):
+
+-- Seq Scan on marks  (cost=0.00..25.00 rows=5 width=40)
+--   Filter: (subject = 'Math')
+
+
+-- 👉 PostgreSQL is doing a Sequential Scan (checks every row).
+-- cost=0.00..25.00 = estimated cost range
+-- rows=5 = estimated rows returned
+-- Filter = condition applied
+
+
+
+-- 🔹 Step 3: Actual Execution
+EXPLAIN ANALYZE SELECT * FROM marks WHERE subject = 'Math';
+
+
+-- 📌 Example output:
+
+-- Seq Scan on marks  (cost=0.00..25.00 rows=5 width=40)
+--   Filter: (subject = 'Math')
+--   Rows Removed by Filter: 15
+-- Planning Time: 0.05 ms
+-- Execution Time: 0.12 ms
+
+
+-- 👉 Now it shows real time and how many rows were actually scanned.
+
+
+-- 🔹 Step 4: Optimization with Index
+
+-- 👉 Problem: Sequential scan is slow for large tables.
+-- 👉 Solution: Add index.
+
+CREATE INDEX idx_marks_subject ON marks(subject);
+
+
+-- Now check again:
+
+EXPLAIN ANALYZE SELECT * FROM marks WHERE subject = 'Math';
+
+
+-- 📌 Example output after index:
+
+-- Index Scan using idx_marks_subject on marks  (cost=0.15..8.30 rows=5 width=40)
+--   Index Cond: (subject = 'Math')
+-- Planning Time: 0.06 ms
+-- Execution Time: 0.03 ms
+
+
+-- 👉 Much faster because it used Index Scan.
+
+
+-- 🔹 Step 5: Joins Execution Plan
+EXPLAIN ANALYZE
+SELECT s.name, m.subject, m.score
+FROM students s
+JOIN marks m ON s.id = m.student_id
+WHERE m.score > 80;
+
+
+-- 📌 Example output:
+
+-- Hash Join  (cost=... rows=... width=...)
+--   Hash Cond: (m.student_id = s.id)
+--   -> Seq Scan on marks m
+--   -> Hash on students s
+
+
+-- 👉 PostgreSQL used a Hash Join because it’s efficient for this dataset.
+
+
+-- 🔹 Step 6: Aggregation Execution Plan
+EXPLAIN ANALYZE
+SELECT subject, AVG(score)
+FROM marks
+GROUP BY subject;
+
+
+-- 📌 Example output:
+
+-- HashAggregate  (cost=... rows=3 width=...)
+--   Group Key: subject
+--   -> Seq Scan on marks
+
+
+-- 👉 Shows PostgreSQL is using HashAggregate (efficient grouping).
+
+
+-- 🔹 Step 7: Keeping Optimizer Smart
+
+-- Update statistics so PostgreSQL knows the table size & distribution:
+
+ANALYZE students;
+ANALYZE marks;
+
+
+-- ✅ Summary Roadmap
+
+-- 1. Use EXPLAIN → estimated plan
+-- 2. Use EXPLAIN ANALYZE → real plan with timing
+-- 3. Add indexes on frequently searched/joined columns
+-- 4. Use joins/subqueries carefully (planner picks best)
+-- 5. Run ANALYZE to refresh stats
+
+
+
+-- 🔹 ANALYZE students; or ANALYZE marks;
+
+-- This is not for query debugging — it’s for the query planner’s brain 🧠.
+-- PostgreSQL query optimizer makes decisions (Seq Scan, Index Scan, Hash Join, etc.) based on statistics.
+-- These statistics live in pg_statistic and pg_stats system tables.
+-- Over time, when you INSERT, UPDATE, or DELETE a lot, those stats can get out of date.
+
+-- 👉 ANALYZE refreshes them.
