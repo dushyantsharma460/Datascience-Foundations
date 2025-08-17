@@ -284,3 +284,124 @@ FROM students;
 -- String functions → manipulate text (UPPER, LENGTH, CONCAT, etc.)
 -- Date functions → extract or calculate with dates (EXTRACT, AGE, etc.)
 
+
+-- 5. Some important funcetion
+
+-- a. DDL (Data Definition Language):
+-- CREATE DATABASE, CREATE TABLE, ALTER TABLE, DROP TABLE.
+
+-- b. DML (Data Manipulation Language):
+-- INSERT, UPDATE, DELETE.
+
+-- c. DQL (Data Query Language):
+-- SELECT, WHERE, ORDER BY, LIMIT.
+
+
+
+-- 6. Trigger (Automation Use)
+-- In PostgreSQL, IF inside a trigger is used when you want the trigger function to behave differently depending on some condition.
+
+-- Syntax (Trigger + IF)
+-- a. First, you create a trigger function with PL/pgSQL.
+-- b. Inside that function, you can use IF ... THEN ... ELSE ... END IF.
+
+
+-- Example: Use of IF in a Trigger
+
+-- Suppose you have a table of students with marks, and you want to automatically set the grade when a row is inserted.
+
+-- Table
+-- a. Drop old table if exists
+DROP TABLE IF EXISTS studentstrigger CASCADE;
+
+
+-- b. Create fresh table
+CREATE TABLE studentstrigger (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    marks INT,
+    grade VARCHAR(2)
+);
+
+-- c. Create trigger function
+CREATE OR REPLACE FUNCTION set_grade()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.marks >= 90 THEN
+        NEW.grade := 'A';
+    ELSIF NEW.marks >= 75 THEN
+        NEW.grade := 'B';
+    ELSIF NEW.marks >= 50 THEN
+        NEW.grade := 'C';
+    ELSE
+        NEW.grade := 'F';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- d. Attach trigger to table
+CREATE TRIGGER trg_set_grade
+BEFORE INSERT OR UPDATE ON studentstrigger
+FOR EACH ROW
+EXECUTE FUNCTION set_grade();
+
+-- e. Test inserts
+INSERT INTO studentstrigger (name, marks) VALUES ('Rohan', 82);
+INSERT INTO studentstrigger (name, marks) VALUES ('Sneha', 45);
+INSERT INTO studentstrigger (name, marks) VALUES ('Priya', 95);
+
+-- f. Check result
+SELECT * FROM studentstrigger;
+
+
+
+-- Trigger fires → IF condition checks marks → assigns B grade automatically.
+
+-- 👉 So, IF in trigger functions is used for conditional logic like validations, automatic field updates, or preventing certain operations.
+
+
+
+-- 7. Performance & Optimization Technique
+
+-- ANALYZE → Updates statistics for query optimization.
+
+-- VACUUM → Cleans dead rows & frees space.
+VACUUM students;
+VACUUM FULL students;
+
+
+-- REINDEX → Rebuilds indexes for efficiency.
+REINDEX INDEX idx_students_name;
+REINDEX TABLE students;
+REINDEX DATABASE mydb1;
+
+
+-- 8. Backup & Restore
+
+-- pg_dump → backup.
+-- 1. Backup your DB (mydb1)
+-- a) SQL format backup
+pg_dump -U postgres -W -F p mydb1 > mydb1_backup.sql
+
+-- b) Custom format backup (recommended for restore)
+pg_dump -U postgres -W -F c mydb1 > mydb1_backup.dump
+
+
+-- 👉 After running, it will ask for your password → enter:
+
+-- 8059056412
+
+-- pg_restore or psql → restore.
+
+-- 2. Restore your DB
+-- a) From SQL file (.sql) using psql
+psql -U postgres -W -d mydb1 -f mydb1_backup.sql
+
+-- b) From custom dump (.dump) using pg_restore
+pg_restore -U postgres -W -d mydb1 mydb1_backup.dump
+
+-- 👉 Again, when prompted, enter the password 8059056412.
+
+
